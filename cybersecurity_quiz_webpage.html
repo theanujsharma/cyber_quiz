@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cybersecurity Quiz</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: black;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .quiz-container {
+        background: #1a0026;
+        padding: 30px;
+        border-radius: 18px;
+        width: 100%;
+        max-width: 650px;
+        box-shadow: 0 0 25px rgba(255,78,161,0.4);
+        text-align: center;
+        border: 2px solid #ff4ea1;
+    }
+
+    h1 {
+        color: #ff4ea1;
+        margin-bottom: 20px;
+    }
+
+    .question {
+        margin-bottom: 20px;
+        padding: 20px;
+        border-radius: 12px;
+        background: #2b0040;
+        border: 1px solid purple;
+        text-align: left;
+    }
+
+    label {
+        display: block;
+        margin: 10px 0;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 8px;
+    }
+
+    label.correct {
+        background: #14532d;
+    }
+
+    label.wrong {
+        background: #7f1d1d;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 15px;
+        background: #ff4ea1;
+        color: white;
+        font-weight: bold;
+    }
+
+    button:hover {
+        opacity: 0.9;
+    }
+
+    .result {
+        font-size: 22px;
+        margin-top: 20px;
+        color: #ff4ea1;
+    }
+
+    .feedback {
+        margin-top: 10px;
+        font-weight: bold;
+        color: #ff4ea1;
+    }
+</style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>Cybersecurity Quiz</h1>
+    <div id="quiz"></div>
+    <button id="nextBtn" onclick="nextQuestion()">Next</button>
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+const quizData = [
+{ q: "Which of the following is part of the CIA Triad?", options: ["Control","Intelligence","Availability","Access"], answer: 2 },
+{ q: "Confidentiality in the CIA Triad refers to:", options: ["Ensuring data is always online","Preventing unauthorized access to information","Making backups","Monitoring user behavior"], answer: 1 },
+{ q: "Which example best represents Integrity?", options: ["Cloud storage replication","Password login","Digital signatures verifying document changes","Installing antivirus"], answer: 2 },
+{ q: "In AAA, what does Authentication mean?", options: ["Tracking user logs","Granting permissions","Verifying identity of a user","Encrypting files"], answer: 2 },
+{ q: "Which of the following is an example of Authorization?", options: ["Entering a password","Accessing files based on role","Logging activities","Installing software"], answer: 1 },
+{ q: "What is Accounting in AAA mainly used for?", options: ["Billing customers only","Tracking and recording activities","Creating passwords","Granting admin access"], answer: 1 },
+{ q: "Who are Script Kiddies?", options: ["Highly trained hackers","Government agents","Low-skill attackers using ready-made tools","Security consultants"], answer: 2 },
+{ q: "Ransomware primarily:", options: ["Deletes all files permanently","Encrypts files and demands payment","Steals Wi-Fi passwords","Slows down computers"], answer: 1 },
+{ q: "Threat + Vulnerability = ?", options: ["Malware","Firewall","Risk","Patch"], answer: 2 },
+{ q: "Network Security is mainly about:", options: ["Designing networks","Protecting networks and transmitted data","Increasing bandwidth","Buying routers"], answer: 1 },
+{ q: "A DDoS attack differs from a DoS attack because it:", options: ["Uses encryption","Comes from multiple sources","Is legal","Targets only emails"], answer: 1 },
+{ q: "What is Privilege Escalation?", options: ["Changing passwords","Gaining higher access than authorized","Blocking IP addresses","Encrypting files"], answer: 1 },
+{ q: "In a Man-in-the-Middle attack, the attacker:", options: ["Deletes data","Intercepts communication between two parties","Sends spam emails","Installs antivirus"], answer: 1 },
+{ q: "A Firewall is used to:", options: ["Speed up downloads","Monitor and control network traffic","Store passwords","Create malware"], answer: 1 },
+{ q: "What is Metasploit mainly used for?", options: ["Graphic design","Penetration testing","Video editing","Database storage"], answer: 1 },
+{ q: "In Metasploit, Payloads are:", options: ["Network cables","Codes that run after exploitation","Firewalls","Usernames"], answer: 1 },
+{ q: "In a Reverse Shell, who initiates the connection?", options: ["Attacker always","Target system connects back to attacker","Firewall","Router"], answer: 1 }
+];
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+const quizDiv = document.getElementById('quiz');
+const nextBtn = document.getElementById('nextBtn');
+const resultDiv = document.getElementById('result');
+
+function loadQuestion() {
+    answered = false;
+    const q = quizData[currentQuestion];
+    quizDiv.innerHTML = `
+        <div class="question">
+            <p>${currentQuestion + 1}. ${q.q}</p>
+            ${q.options.map((opt, i) => `
+                <label data-index="${i}" onclick="selectOption(${i})">
+                    <input type="radio" name="option"> ${opt}
+                </label>
+            `).join('')}
+            <div class="feedback" id="feedback"></div>
+        </div>
+    `;
+}
+
+function selectOption(index) {
+    if (answered) return;
+    answered = true;
+
+    const correctIndex = quizData[currentQuestion].answer;
+    const labels = document.querySelectorAll('label');
+    const feedback = document.getElementById('feedback');
+
+    labels.forEach(label => {
+        const i = parseInt(label.getAttribute('data-index'));
+        if (i === correctIndex) {
+            label.classList.add('correct');
+        }
+        if (i === index && i !== correctIndex) {
+            label.classList.add('wrong');
+        }
+    });
+
+    if (index === correctIndex) {
+        score++;
+        feedback.textContent = 'Correct Answer!';
+    } else {
+        feedback.textContent = 'Wrong Answer!';
+    }
+}
+
+function nextQuestion() {
+    if (!answered) return;
+
+    currentQuestion++;
+
+    if (currentQuestion < quizData.length) {
+        loadQuestion();
+    } else {
+        quizDiv.innerHTML = '';
+        nextBtn.style.display = 'none';
+        resultDiv.textContent = `Your Score: ${score} / ${quizData.length}`;
+    }
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>
